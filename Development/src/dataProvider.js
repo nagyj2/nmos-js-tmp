@@ -564,7 +564,49 @@ const convertDataProviderRequestToHTTP = (
                 patchData.transport_params.push({});
             }
 
-            for (const d of differences) {
+            // optional parameters. Must be declared in $constraints to be sent
+            const constrainedKeys = new Set([
+                'fec_enabled',
+                'fec_destination_ip',
+                'fec_type',
+                'fec_mode',
+                'fec_block_width',
+                'fec_block_height',
+                'fec1D_destination_port',
+                'fec2D_destination_port',
+                'fec1D_source_port',
+                'fec2D_source_port',
+                'rtcp_enabled',
+                'rtcp_destination_ip',
+                'rtcp_destination_port',
+                'rtcp_source_por',
+            ]);
+
+            let filteredDifferences = differences.filter(diff => {
+                const path = diff.path;
+
+                if (!Array.isArray(path) || path.length < 1) {
+                    return true;
+                }
+
+                const key = path[path.length - 1];
+
+                // Only check/remove for the keys in constrainedKeys
+                if (!constrainedKeys.has(key)) {
+                    return true;
+                }
+
+                const index = path[path.length - 2];
+                const constraintItem =
+                    params?.previousData?.$constraints?.[index];
+
+                return (
+                    !!constraintItem &&
+                    Object.prototype.hasOwnProperty.call(constraintItem, key)
+                );
+            });
+
+            for (const d of filteredDifferences) {
                 JsonPointer.set(patchData, `/${d.path.join('/')}`, d.rhs, true);
             }
 
