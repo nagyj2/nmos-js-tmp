@@ -99,6 +99,10 @@ const encodeRQLNameChars = str => {
     });
 };
 
+const escapeRegexSpecialChars = str => {
+    return str.replace(/[.*+?[\]{}()|\\^$]/g, '\\$&');
+};
+
 const encodeRQLRational = value => {
     const n = get(value, 'numerator');
     const d = get(value, 'denominator');
@@ -116,7 +120,8 @@ const encodeRQLKeyValueFilter = (key, value) => {
         if (typeof value === 'string') {
             // most properties are strings for which partial matches are useful
             // hmm, event_type wildcards like 'number/temperature/*' are working by chance
-            let encodedValue = encodeRQLNameChars(value);
+            let encodedValue = escapeRegexSpecialChars(value);
+            encodedValue = encodeRQLNameChars(encodedValue);
             encodedValue = encodedValue.split('%2C'); // splits comma separated values
             for (const matchValue of encodedValue) {
                 // ignore empty strings
