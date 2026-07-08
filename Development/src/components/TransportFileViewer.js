@@ -28,7 +28,12 @@ const TransportFileViewer = ({ endpoint, ...props }) => {
                     >
                         <ContentCopyIcon fontSize="small" />
                     </IconButton>
-                    <pre style={{ fontFamily: 'inherit' }}>
+                    <pre
+                        style={{
+                            fontFamily: 'inherit',
+                            textWrapMode: 'wrap',
+                        }}
+                    >
                         <Typography>
                             {get(props.record, `${endpoint}`)}
                         </Typography>
